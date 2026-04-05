@@ -1,0 +1,85 @@
+{
+  "name": "grok-4agent-auditor-jwc",
+  "displayName": "Grok 4-Agent Code Auditor",
+  "description": "Enterprise code auditing with 4 collaborating Grok instances (Octa v2.1 Glyph support)",
+  "version": "0.1.11",
+  "publisher": "jwc",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:grok4agent.auditCurrentFile",
+    "onCommand:grok4agent.auditProject",
+    "onView:grokSidebar"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "grok4agent.auditCurrentFile",
+        "title": "Audit Current File with 4 Grok Agents",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "grok4agent.auditProject",
+        "title": "Audit Entire Project with 4 Grok Agents",
+        "icon": "$(folder)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "grok4agent.auditCurrentFile",
+          "group": "navigation",
+          "when": "editorHasCode"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "grok-auditor",
+          "title": "Grok Auditor",
+          "icon": "$(sparkle)"
+        }
+      ]
+    },
+    "views": {
+      "grok-auditor": [
+        {
+          "id": "grokSidebar",
+          "name": "4-Agent Auditor"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Grok 4-Agent Auditor",
+      "properties": {
+        "grok4agent.apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "password"
+          },
+          "default": [],
+          "maxItems": 4,
+          "description": "Add your 4 Grok API keys here (one per agent)"
+        },
+        "grok4agent.defaultModel": {
+          "type": "string",
+          "default": "grok-4.20-multi-agent-0309",
+          "enum": ["grok-4-1-fast-reasoning", "grok-4.20-0309-reasoning", "grok-4.20-multi-agent-0309"],
+          "description": "Default model for audits (optimized for grok-4.20-multi-agent-0309)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map"
+  }
+}
