@@ -1,93 +1,94 @@
-import * as vscode from 'vscode';
+
 import { GrokClientPool } from './grokClient';
 
 const AGENT_ROLES = [
-  { name: "Architect", focus: "structure, layers, Roman Wheel, glyph design" },
-  { name: "Security", focus: "verification, consensus, risks, determinism" },
-  { name: "Performance", focus: "efficiency, binary math, optimization" },
-  { name: "Quality", focus: "readability, glyph rules, layer separation" }
+  { name: "Architect", focus: "high-level architecture, structure, design patterns" },
+  { name: "Security", focus: "vulnerabilities, risks, compliance" },
+  { name: "Performance", focus: "efficiency, bottlenecks, optimization" },
+  { name: "Quality", focus: "readability, best practices, refactoring" }
 ];
+
+export interface AgentSuggestion {
+  agent: string;
+  explanation: string;
+  code?: string;
+}
 
 export class MultiAgentAuditor {
   private pool: GrokClientPool;
 
-  constructor() {                    // ← Fixed: no context parameter
+  constructor() {
     this.pool = new GrokClientPool();
   }
 
-  async auditCode(code: string, filePath?: string, isProject = false): Promise<string> {
-    await this.pool.init();           // ← Fixed: no argument
+  async auditCode(code: string, filePath?: string, isProject = false): Promise<{ suggestions: AgentSuggestion[], synthesis: string, file: string }> {
+    if (code.trim() === '') {
+      return { suggestions: [{ agent: 'Error', explanation: 'No code content was provided to audit.' }], synthesis: '', file: filePath || 'Untitled' };
+    }
+
+    await this.pool.init();
 
     const clients = this.pool.getAllClients();
     if (clients.length === 0) {
-      throw new Error("No Grok API keys configured.");
+      throw new Error("No Grok API keys configured. Please add them in Settings.");
     }
 
-    // Force your strong multi-agent model
-    const model = "grok-4.20-multi-agent-0309";
+    const model = "grok-4";
 
     if (isProject) {
-      return "# Project Audit\n\nFull project scanning is not implemented yet.";
+      return { suggestions: [{ agent: 'Project', explanation: 'Full project scanning is not implemented yet.' }], synthesis: '', file: filePath || 'Untitled' };
     }
 
-    const glyphHeader = "Octa v2.1 Glyph Code - Binary-first with strict Optical (human) vs Binary Execution (Roman Wheel + WASM) separation.\n\n";
-
     const prompts = AGENT_ROLES.map(role =>
-      `You are the ${role.name} Agent.\n` +
-      `Focus ONLY on: ${role.focus}\n` +
-      glyphHeader +
+      `You are the ${role.name} expert auditing this code.\n` +
+      `Focus ONLY on: ${role.focus}\n\n` +
       (filePath ? `File: ${filePath}\n` : '') +
-      `Code:\n\`\`\`python\n${code}\n\`\`\`\n\n` +
-      `Keep response concise and actionable.`
+      `Code:\n${code}\n\n` +
+      `Provide concise, actionable findings and recommendations. If you recommend a code change, output it as a markdown code block after your explanation.`
     );
 
-    // Parallel with generous but safe timeouts
     const responses = await Promise.all(
       prompts.map(async (prompt, i) => {
-        const client = clients[i % clients.length];
+        const client = clients[i % clients.length] as any;
         try {
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Agent timed out (too slow)')), 55000)
-          );
-
-          const apiPromise = client.chat.completions.create({
+          const res = await client.chat.completions.create({
             model,
             messages: [{ role: "user", content: prompt }],
-            temperature: 0.65,
-            max_tokens: 850
+            temperature: 0.7,
+            max_tokens: 700
           });
-
-          const res = await Promise.race([apiPromise, timeoutPromise]) as any;
+          const content = res.choices[0]?.message?.content || "No response";
+          // Try to extract code block if present
+          const codeMatch = content.match(/```[a-zA-Z]*\n([\s\S]*?)```/);
+          const code = codeMatch ? codeMatch[1].trim() : undefined;
+          // Remove code block from explanation
+          const explanation = codeMatch ? content.replace(codeMatch[0], '').trim() : content.trim();
           return {
             agent: AGENT_ROLES[i].name,
-            content: res.choices[0]?.message?.content || "No response"
+            explanation,
+            code
           };
         } catch (err: any) {
-          return { agent: AGENT_ROLES[i].name, content: `Error: ${err.message}` };
+          return { agent: AGENT_ROLES[i].name, explanation: `Error: ${err.message}` };
         }
       })
     );
 
-    // Quick synthesis
-    const synthesisPrompt = `Lead Auditor: Summarize the 4 reports into key findings and recommendations for this Octa v2.1 glyph code.\n\n` +
-      responses.map(r => `=== ${r.agent} ===\n${r.content}\n`).join('\n');
+    const synthesisPrompt = `You are the Lead Auditor. Synthesize these 4 reports into a clear executive summary with prioritized findings and recommended actions.\n\n` +
+      responses.map(r => `=== ${r.agent} ===\n${r.explanation}\n${r.code ? '\n[Code suggestion present]' : ''}\n`).join('\n');
 
-    const leadClient = this.pool.getNextClient();
+    const leadClient = this.pool.getNextClient() as any;
     const finalRes = await leadClient.chat.completions.create({
       model,
       messages: [{ role: "user", content: synthesisPrompt }],
       temperature: 0.5,
-      max_tokens: 700
+      max_tokens: 600
     });
 
-    let report = `# 4-Agent Grok Audit (4.20-multi)\n\n**File:** ${filePath || 'Untitled'}\n\n`;
-
-    responses.forEach(r => {
-      report += `## ${r.agent} Agent\n${r.content}\n\n`;
-    });
-
-    report += `## Final Synthesis\n${finalRes.choices[0]?.message?.content || 'No synthesis generated'}`;
-
-    return report;
+    return {
+      suggestions: responses,
+      synthesis: finalRes.choices[0]?.message?.content || 'No synthesis generated',
+      file: filePath || 'Untitled'
+    };
   }
 }

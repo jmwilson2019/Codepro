@@ -1,29 +1,24 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "type": "npm",
-            "script": "watch",
-            "group": "build",
-            "presentation": {
-                "panel": "shared",
-                "reveal": "never"
-            },
-            "problemMatcher": ["$tsc-watch"],
-            "isBackground": true,
-            "label": "npm: watch",
-            "detail": "webpack --mode development --watch"
-        },
-        {
-            "type": "npm",
-            "script": "compile",
-            "group": "build",
-            "presentation": {
-                "panel": "shared"
-            },
-            "problemMatcher": ["$tsc"],
-            "label": "npm: compile",
-            "detail": "webpack"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "watch",
+      "problemMatcher": ["$tsc-watch"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "group": "watchers"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "npm: watch",
+      "detail": "webpack --mode development --watch",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
 }

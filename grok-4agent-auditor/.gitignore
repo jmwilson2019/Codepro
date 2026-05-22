@@ -1,5 +1,64 @@
-node_modules
-dist/
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+yarn.lock
+
+# Build outputs
 out/
+dist/
 .vscode-test/
 *.vsix
+
+# VS Code files
+.vscode/
+.settings/
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/settings.json
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+*~
+
+# Azure Functions Core Tools
+func*
+
+# Temporary files
+*.tmp
+*.temp
+
+# Testing
+coverage/
+.nyc_output
+
+# Personal IDE config
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/settings.json

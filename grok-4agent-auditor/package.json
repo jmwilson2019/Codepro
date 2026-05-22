@@ -1,31 +1,25 @@
 {
-  "name": "grok-4agent-auditor-jwc",
-  "displayName": "Grok 4-Agent Code Auditor",
-  "description": "Enterprise code auditing with 4 collaborating Grok instances (Octa v2.1 Glyph support)",
-  "version": "0.1.11",
-  "publisher": "jwc",
+  "name": "grok-4agent-auditor",
+  "displayName": "Grok 4-Agent Auditor",
+  "description": "Enterprise code auditing with 4 collaborating Grok agents",
+  "version": "3.3.3",
+  "publisher": "SynerGroAICorp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SynerGro-AI/grok-4agent-auditor.git"
+  },
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
   "main": "./dist/extension.js",
-  "activationEvents": [
-    "onStartupFinished",
-    "onCommand:grok4agent.auditCurrentFile",
-    "onCommand:grok4agent.auditProject",
-    "onView:grokSidebar"
-  ],
+  "icon": "images/SynerGroIcon.png",
   "contributes": {
     "commands": [
       {
         "command": "grok4agent.auditCurrentFile",
         "title": "Audit Current File with 4 Grok Agents",
-        "icon": "$(sparkle)"
-      },
-      {
-        "command": "grok4agent.auditProject",
-        "title": "Audit Entire Project with 4 Grok Agents",
-        "icon": "$(folder)"
+        "icon": "images/SynerGroIcon.png"
       }
     ],
     "menus": {
@@ -33,24 +27,7 @@
         {
           "command": "grok4agent.auditCurrentFile",
           "group": "navigation",
-          "when": "editorHasCode"
-        }
-      ]
-    },
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "grok-auditor",
-          "title": "Grok Auditor",
-          "icon": "$(sparkle)"
-        }
-      ]
-    },
-    "views": {
-      "grok-auditor": [
-        {
-          "id": "grokSidebar",
-          "name": "4-Agent Auditor"
+          "when": "true"
         }
       ]
     },
@@ -59,27 +36,25 @@
       "properties": {
         "grok4agent.apiKeys": {
           "type": "array",
-          "items": {
-            "type": "string",
-            "format": "password"
-          },
+          "items": { "type": "string", "format": "password" },
           "default": [],
           "maxItems": 4,
-          "description": "Add your 4 Grok API keys here (one per agent)"
-        },
-        "grok4agent.defaultModel": {
-          "type": "string",
-          "default": "grok-4.20-multi-agent-0309",
-          "enum": ["grok-4-1-fast-reasoning", "grok-4.20-0309-reasoning", "grok-4.20-multi-agent-0309"],
-          "description": "Default model for audits (optimized for grok-4.20-multi-agent-0309)"
+          "description": "Add your 4 Grok API keys here"
         }
       }
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
     "compile": "webpack",
-    "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "ts-loader": "^9.5.1",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "openai": "^4.52.0"
   }
 }

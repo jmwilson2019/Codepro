@@ -1,0 +1,27 @@
+{
+  "menus": {
+    "editor/title": [
+      {
+        "command": "grok4agent.auditCurrentFile",
+        "group": "navigation",
+        "when": "true"
+      }
+    ],
+    "commandPalette": [
+      {
+        "command": "grok.auditFile",
+        "group": "navigation"
+      },
+      {
+        "command": "grok.auditProject",
+        "group": "navigation"
+      }
+    ],
+    "editor/context": [
+      {
+        "command": "grok.auditFile",
+        "group": "navigation"
+      }
+    ]
+  }
+}
