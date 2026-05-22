@@ -1,8 +1,8 @@
 {
   "name": "seraphina-vscode-integration",
   "displayName": "Seraphina VSCode Integration",
-  "description": "Experimental hybrid AI system combining Grok with Seraphina's Roman Wheel truth validation for code auditing.",
-  "version": "0.1.0",
+  "description": "Hybrid AI code auditor combining Grok with Seraphina's Roman Wheel truth-validation consensus across 4 specialist agents.",
+  "version": "0.2.0",
   "publisher": "jwc",
   "license": "MIT",
   "engines": {
@@ -10,15 +10,18 @@
   },
   "categories": [
     "Other",
-    "Programming Languages"
+    "Programming Languages",
+    "Linters"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "seraphina.auditWithConsensus",
-        "title": "Seraphina: Audit with Roman Wheel Consensus"
+        "title": "Seraphina: Audit Current File with Roman Wheel Consensus"
       },
       {
         "command": "seraphina.glyphAnalysis",
@@ -26,7 +29,7 @@
       },
       {
         "command": "seraphina.setApiKeys",
-        "title": "Seraphina: Set API Keys"
+        "title": "Seraphina: Set Grok API Keys"
       },
       {
         "command": "seraphina.openTruthPanel",
@@ -34,27 +37,27 @@
       }
     ],
     "configuration": {
-      "title": "Grok 4-Agent Auditor",
+      "title": "Seraphina VSCode Integration",
       "properties": {
-        "grok4agent.apiKeys": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "password"
-          },
-          "default": [],
-          "maxItems": 4,
-          "description": "Your 4 Grok API keys (one per agent). Stored securely in VS Code SecretStorage."
-        },
-        "grok4agent.defaultModel": {
+        "seraphina.model": {
           "type": "string",
-          "default": "grok-4",
+          "default": "grok-4-1-fast-reasoning",
           "enum": [
             "grok-4",
-            "grok-4.20",
+            "grok-4.20-0309-reasoning",
             "grok-4-1-fast-reasoning"
           ],
-          "description": "Default model for the agents"
+          "description": "Grok model used by each agent."
+        },
+        "seraphina.maxTokensPerAgent": {
+          "type": "number",
+          "default": 2400,
+          "description": "Max tokens per agent response."
+        },
+        "seraphina.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "description": "Sampling temperature for each agent."
         }
       }
     }
@@ -66,7 +69,6 @@
     "package": "webpack --mode production --devtool hidden-source-map"
   },
   "dependencies": {
-    "@noble/hashes": "^2.0.1",
     "openai": "^4.66.1"
   },
   "devDependencies": {
