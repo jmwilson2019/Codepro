@@ -161,9 +161,9 @@ export function activate(context: vscode.ExtensionContext) {
         );
         const open = (url: string) => vscode.env.openExternal(vscode.Uri.parse(url));
         if (choice === 'Report a Bug') {
-          await open('https://github.com/SynerGro-AI/grok-4agent-auditor/issues/new');
+          await open('https://github.com/jmwilson2019/Codepro/issues/new?labels=grok-4agent-auditor');
         } else if (choice === 'Ask a Question') {
-          await open('https://github.com/SynerGro-AI/grok-4agent-auditor/discussions');
+          await open('https://github.com/jmwilson2019/Codepro/discussions');
         } else if (choice === 'Rate the Extension') {
           await open('https://marketplace.visualstudio.com/items?itemName=SynerGroAICorp.grok-4agent-auditor&ssr=false#review-details');
         }

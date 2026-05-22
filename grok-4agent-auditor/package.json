@@ -2,17 +2,18 @@
   "name": "grok-4agent-auditor",
   "displayName": "Grok 4-Agent Auditor",
   "description": "Enterprise code auditing with 4 collaborating Grok agents — now with Roman Wheel consensus, Truth Score, and Glyph analysis.",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "publisher": "SynerGroAICorp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SynerGro-AI/grok-4agent-auditor.git"
+    "url": "https://github.com/jmwilson2019/Codepro.git",
+    "directory": "grok-4agent-auditor"
   },
   "bugs": {
-    "url": "https://github.com/SynerGro-AI/grok-4agent-auditor/issues"
+    "url": "https://github.com/jmwilson2019/Codepro/issues"
   },
-  "homepage": "https://github.com/SynerGro-AI/grok-4agent-auditor#readme",
-  "qna": "https://github.com/SynerGro-AI/grok-4agent-auditor/discussions",
+  "homepage": "https://github.com/jmwilson2019/Codepro/tree/main/grok-4agent-auditor#readme",
+  "qna": "https://github.com/jmwilson2019/Codepro/discussions",
   "keywords": [
     "grok",
     "xai",

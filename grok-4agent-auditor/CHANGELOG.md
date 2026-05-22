@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.2 — 2026-05-21
+
+### Changed
+- Repository / bugs / Q&A URLs now point to the live monorepo at `https://github.com/jmwilson2019/Codepro` (subfolder `grok-4agent-auditor`). This makes the Marketplace "Report Issue" button and Q&A tab work immediately. A `release/synergro-ai` branch retains the prospective `SynerGro-AI/grok-4agent-auditor` URLs for a future migration.
+- `repository.directory` set to `grok-4agent-auditor` so package managers and GitHub link to the right subfolder.
+
 ## 3.4.1 — 2026-05-21
 
 ### Added
