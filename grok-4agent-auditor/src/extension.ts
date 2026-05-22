@@ -1,13 +1,82 @@
 import * as vscode from 'vscode';
-import { MultiAgentAuditor } from './multiAgentAuditor';
+import { MultiAgentAuditor, ConsensusReport } from './multiAgentAuditor';
+import { GlyphAnalyzer, GlyphReport } from './glyphAnalyzer';
+import { TruthPanel } from './truthPanel';
+import { GrokClientPool } from './grokClient';
 
 let auditor: MultiAgentAuditor | undefined;
+let glyphAnalyzer: GlyphAnalyzer | undefined;
+let lastConsensus: ConsensusReport | undefined;
+
+async function setApiKeysFlow(context: vscode.ExtensionContext): Promise<void> {
+  const collected: string[] = [];
+  for (let i = 1; i <= 4; i++) {
+    const key = await vscode.window.showInputBox({
+      title: `Grok 4-Agent · API Key ${i} of up to 4`,
+      prompt: i === 1
+        ? 'Paste your xAI API key (must start with "xai-"). You can add up to 4 keys.'
+        : `Paste key ${i}, or leave blank to finish.`,
+      password: true,
+      ignoreFocusOut: true,
+      validateInput: (text) => {
+        const t = text?.trim() ?? '';
+        if (t === '' && i > 1) return null;
+        if (!t) return 'API key is required';
+        if (!t.startsWith('xai-')) return 'Key must start with "xai-"';
+        if (t.length < 20) return 'Key looks too short';
+        return null;
+      },
+    });
+    if (key === undefined) { vscode.window.showWarningMessage('Grok 4-Agent: key setup cancelled.'); return; }
+    const trimmed = key.trim();
+    if (trimmed === '') break;
+    collected.push(trimmed);
+  }
+  if (collected.length === 0) { vscode.window.showErrorMessage('Grok 4-Agent: no keys provided.'); return; }
+  try {
+    await GrokClientPool.storeKeys(context, collected);
+    vscode.window.showInformationMessage(`Grok 4-Agent: stored ${collected.length} key${collected.length === 1 ? '' : 's'} securely.`);
+  } catch (err: unknown) {
+    const m = err instanceof Error ? err.message : String(err);
+    vscode.window.showErrorMessage(`Grok 4-Agent: failed to store keys — ${m}`);
+  }
+}
+
+function renderGlyphMarkdown(r: GlyphReport): string {
+  const lines: string[] = [];
+  lines.push(`# Grok 4-Agent · Glyph Analysis`);
+  lines.push('');
+  lines.push(`**File:** \`${r.filePath}\``);
+  lines.push(`**Language:** ${r.language}`);
+  lines.push('');
+  lines.push('## Metrics');
+  lines.push(`- Lines: ${r.metrics.lines} (non-blank ${r.metrics.nonBlankLines})`);
+  lines.push(`- Comment ratio: ${(r.metrics.commentRatio * 100).toFixed(1)}%`);
+  lines.push(`- Longest line: ${r.metrics.longestLine}`);
+  lines.push(`- TODO / FIXME flags: ${r.metrics.todoCount}`);
+  lines.push(`- Async tokens: ${r.metrics.asyncCount}`);
+  lines.push(`- try/catch tokens: ${r.metrics.tryCount}`);
+  lines.push('');
+  lines.push('## Glyphs Detected');
+  if (r.glyphs.length === 0) lines.push('(none)');
+  else {
+    lines.push('| Glyph | Meaning | Count |');
+    lines.push('|------|---------|-------|');
+    for (const g of r.glyphs) lines.push(`| ${g.glyph} | ${g.meaning} | ${g.count} |`);
+  }
+  lines.push('');
+  lines.push('## Interpreter');
+  lines.push('');
+  lines.push(r.insight);
+  return lines.join('\n');
+}
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Grok Auditor: Activating extension...');
 
   try {
-    auditor = new MultiAgentAuditor();
+    auditor = new MultiAgentAuditor(context);
+    glyphAnalyzer = new GlyphAnalyzer(context);
     console.log('Grok Auditor: Auditor initialized successfully');
   } catch (err) {
     console.error('Grok Auditor: Failed to init auditor:', err);
@@ -27,9 +96,65 @@ export function activate(context: vscode.ExtensionContext) {
         const filePath = editor.document.fileName;
         console.log(`Grok Auditor: Auditing file ${filePath} (${code.length} chars)`);
         await runAudit(code, filePath, false);
+      }),
+
+      vscode.commands.registerCommand('grok4agent.setApiKeys', () => setApiKeysFlow(context)),
+
+      vscode.commands.registerCommand('grok4agent.auditWithConsensus', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) { vscode.window.showErrorMessage('No active file open.'); return; }
+        if (!auditor) { vscode.window.showErrorMessage('Auditor not initialised.'); return; }
+        await vscode.window.withProgress(
+          { location: vscode.ProgressLocation.Notification, title: 'Grok 4-Agent · Roman Wheel Consensus', cancellable: false },
+          async (progress) => {
+            try {
+              const report = await auditor!.auditWithConsensus(
+                editor.document.getText(),
+                editor.document.fileName,
+                editor.document.languageId,
+                (msg) => progress.report({ message: msg })
+              );
+              lastConsensus = report;
+              TruthPanel.showOrUpdate(report);
+              const doc = await vscode.workspace.openTextDocument({ content: report.synthesis, language: 'markdown' });
+              await vscode.window.showTextDocument(doc, { preview: false, viewColumn: vscode.ViewColumn.Active });
+            } catch (err: unknown) {
+              const m = err instanceof Error ? err.message : String(err);
+              vscode.window.showErrorMessage(`Consensus audit failed: ${m}`);
+            }
+          }
+        );
+      }),
+
+      vscode.commands.registerCommand('grok4agent.glyphAnalysis', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) { vscode.window.showErrorMessage('No active file open.'); return; }
+        if (!glyphAnalyzer) { vscode.window.showErrorMessage('Glyph analyzer not initialised.'); return; }
+        await vscode.window.withProgress(
+          { location: vscode.ProgressLocation.Notification, title: 'Grok 4-Agent · Glyph Analysis', cancellable: false },
+          async () => {
+            try {
+              const report = await glyphAnalyzer!.analyze(editor.document.getText(), editor.document.fileName, editor.document.languageId);
+              const doc = await vscode.workspace.openTextDocument({ content: renderGlyphMarkdown(report), language: 'markdown' });
+              await vscode.window.showTextDocument(doc, { preview: false });
+            } catch (err: unknown) {
+              const m = err instanceof Error ? err.message : String(err);
+              vscode.window.showErrorMessage(`Glyph analysis failed: ${m}`);
+            }
+          }
+        );
+      }),
+
+      vscode.commands.registerCommand('grok4agent.openTruthPanel', async () => {
+        if (lastConsensus) { TruthPanel.showOrUpdate(lastConsensus); return; }
+        const choice = await vscode.window.showInformationMessage(
+          'No consensus report yet. Run Roman Wheel audit on the current file?',
+          'Run Audit', 'Cancel'
+        );
+        if (choice === 'Run Audit') await vscode.commands.executeCommand('grok4agent.auditWithConsensus');
       })
     );
-    console.log('Grok Auditor: Command registered successfully');
+    console.log('Grok Auditor: Commands registered successfully');
   } catch (err) {
     console.error('Grok Auditor: Failed to register command:', err);
     vscode.window.showErrorMessage(`Registration failed: ${(err as Error).message}`);
