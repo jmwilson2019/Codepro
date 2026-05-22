@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.4.3 — 2026-05-21
+
+### Security
+- Patched transitive dev-only vulnerability `GHSA-q3j6-qgpj-74h6` / `GHSA-v39h-62p7-jpjc` (`fast-uri` path-traversal & host-confusion) via `npm audit fix`. Bumped `fast-uri` through `webpack > schema-utils > ajv` to a patched release. The vulnerable package was a build-time-only dependency and was never bundled into shipped `.vsix` artifacts; no end-user exposure. Housekeeping only.
+
 ## 3.4.2 — 2026-05-21
 
 ### Changed

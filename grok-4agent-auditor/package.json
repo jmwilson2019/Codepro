@@ -2,7 +2,7 @@
   "name": "grok-4agent-auditor",
   "displayName": "Grok 4-Agent Auditor",
   "description": "Enterprise code auditing with 4 collaborating Grok agents — now with Roman Wheel consensus, Truth Score, and Glyph analysis.",
-  "version": "3.4.2",
+  "version": "3.4.3",
   "publisher": "SynerGroAICorp",
   "repository": {
     "type": "git",
