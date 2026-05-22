@@ -2,12 +2,34 @@
   "name": "grok-4agent-auditor",
   "displayName": "Grok 4-Agent Auditor",
   "description": "Enterprise code auditing with 4 collaborating Grok agents — now with Roman Wheel consensus, Truth Score, and Glyph analysis.",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "publisher": "SynerGroAICorp",
   "repository": {
     "type": "git",
     "url": "https://github.com/SynerGro-AI/grok-4agent-auditor.git"
   },
+  "bugs": {
+    "url": "https://github.com/SynerGro-AI/grok-4agent-auditor/issues"
+  },
+  "homepage": "https://github.com/SynerGro-AI/grok-4agent-auditor#readme",
+  "qna": "https://github.com/SynerGro-AI/grok-4agent-auditor/discussions",
+  "keywords": [
+    "grok",
+    "xai",
+    "audit",
+    "code review",
+    "ai",
+    "agents",
+    "security",
+    "performance",
+    "consensus",
+    "truth score"
+  ],
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Other"
+  ],
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
@@ -39,6 +61,10 @@
       {
         "command": "grok4agent.setApiKeys",
         "title": "Grok 4-Agent: Set API Keys (Secure)"
+      },
+      {
+        "command": "grok4agent.reportIssue",
+        "title": "Grok 4-Agent: Report an Issue / Send Feedback"
       }
     ],
     "menus": {

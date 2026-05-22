@@ -152,6 +152,21 @@ export function activate(context: vscode.ExtensionContext) {
           'Run Audit', 'Cancel'
         );
         if (choice === 'Run Audit') await vscode.commands.executeCommand('grok4agent.auditWithConsensus');
+      }),
+
+      vscode.commands.registerCommand('grok4agent.reportIssue', async () => {
+        const choice = await vscode.window.showInformationMessage(
+          'Send feedback for Grok 4-Agent Auditor?',
+          'Report a Bug', 'Ask a Question', 'Rate the Extension', 'Cancel'
+        );
+        const open = (url: string) => vscode.env.openExternal(vscode.Uri.parse(url));
+        if (choice === 'Report a Bug') {
+          await open('https://github.com/SynerGro-AI/grok-4agent-auditor/issues/new');
+        } else if (choice === 'Ask a Question') {
+          await open('https://github.com/SynerGro-AI/grok-4agent-auditor/discussions');
+        } else if (choice === 'Rate the Extension') {
+          await open('https://marketplace.visualstudio.com/items?itemName=SynerGroAICorp.grok-4agent-auditor&ssr=false#review-details');
+        }
       })
     );
     console.log('Grok Auditor: Commands registered successfully');

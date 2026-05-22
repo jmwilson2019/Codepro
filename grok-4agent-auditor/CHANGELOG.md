@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.1 — 2026-05-21
+
+### Added
+- **Feedback command** `Grok 4-Agent: Report an Issue / Send Feedback` — pick "Report a Bug", "Ask a Question", or "Rate the Extension" to open the right page directly from VS Code.
+- Marketplace metadata: `bugs.url`, `homepage`, `qna`, `keywords`, `categories` so the Marketplace listing shows a "Report Issue" button and a Q&A tab.
+
 ## 3.4.0 — 2026-05-21
 
 ### Added
