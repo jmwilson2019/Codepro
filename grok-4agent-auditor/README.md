@@ -27,5 +27,12 @@ For development:
 2. Run npm run watch to compile in watch mode.
 3. Press F5 to launch Extension Development Host window.
 
+## CI / Release
+- CI build workflow: [`grok-auditor-ci.yml`](../.github/workflows/grok-auditor-ci.yml)
+- Security workflow: [`security.yml`](../.github/workflows/security.yml)
+- Release workflow: [`release.yml`](../.github/workflows/release.yml)
+
+Tagged releases (`v*.*.*`) automatically build and publish a `.vsix` artifact to GitHub Releases.
+
 ## Package for Distribution
 npm run package → creates .vsix file. #why can't we just hit a button or a keyboard short cut, we shouldn't need to go to development

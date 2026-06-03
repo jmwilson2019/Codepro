@@ -1,9 +1,6 @@
 {
-    "grok4agent.defaultModel": "grok-4.20",
-    "grok4agent.apiKeys": [
-        "REPLACE_WITH_YOUR_XAI_KEY_1",
-        "REPLACE_WITH_YOUR_XAI_KEY_2",
-        "REPLACE_WITH_YOUR_XAI_KEY_3",
-        "REPLACE_WITH_YOUR_XAI_KEY_4"
-    ]
+  // Copy this file to .vscode/settings.json for local development only.
+  // Never commit real API keys, tokens, or credentials.
+  "grok4agent.apiKey": "xai-REPLACE_ME",
+  "grok4agent.defaultModel": "grok-4.20-0309-reasoning"
 }

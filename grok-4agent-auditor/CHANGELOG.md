@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0] - 2026-06-03
+
+### Added
+- Added CI/CD automation for build, packaging, security scanning, and release workflows.
+- Added CodeQL, npm audit, and gitleaks security scanning in GitHub Actions.
+- Added automated `.vsix` GitHub Release publishing for version tags.
+
 ## 3.4.3 — 2026-05-21
 
 ### Security
