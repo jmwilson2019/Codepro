@@ -1,0 +1,78 @@
+name: Grok Auditor CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "grok-4agent-auditor/**"
+      - ".github/workflows/grok-auditor-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "grok-4agent-auditor/**"
+      - ".github/workflows/grok-auditor-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: grok-4agent-auditor
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: grok-4agent-auditor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Package VSIX
+        run: npx --yes @vscode/vsce@latest package --no-dependencies -o grok-4agent-auditor.vsix
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: grok-4agent-auditor-vsix
+          path: grok-4agent-auditor/grok-4agent-auditor.vsix
+
+  cross-platform-compile:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    defaults:
+      run:
+        working-directory: grok-4agent-auditor
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: grok-4agent-auditor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile
+        run: npm run compile
